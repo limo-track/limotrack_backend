@@ -8,7 +8,7 @@ const knex = Knex({
         password: process.env.db_password,
         database: process.env.database
     },
-    debug: true,
+    debug: false,
     pool:{
         min: 2,
         max: 10
