@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken');
 
 module.exports = class UserService {
 
-    static async createUser({user_name, password, email, role, account, group}) {
+    static async createUser({ user_name, password, email, role, account, group }) {
         // return false if user email already exists
         let user = await User.query().select('users.*').where('email', '=', email);
-        if (user[0]) return false;
+        if (user[0]) return null;
 
         const hashedPassword = await UserService.hashPassword(password);
         user = await User.query().insert({
@@ -15,46 +15,51 @@ module.exports = class UserService {
             email,
             password: hashedPassword,
             role_id: role,
-            account_id: account?account:null,
-            group_id: group?group:null
+            account_id: account ? account : null,
+            group_id: group ? group : null
         });
-        console.log('created');
         return user;
     }
 
-    static async updateUser({id, user_name, password,  role, group}){
-        const hashedPassword = await UserService.hashPassword(password);
+    static async updateUser({ id, user_name, role_id, group_id }) {
         const res = await User.query()
             .findById(id)
             .patch({
                 user_name,
-                password: hashedPassword,
-                role_id: role,
-                group_id: group?group:null
+                role_id,
+                group_id: group_id ? group_id : null
             });
-        return res;
+        return res.toString();
     }
 
-    static async removeUser(id){
-        return User.query().deleteById(id);
+    static async changePassword({ id, password }) {
+        const hashedPassword = await UserService.hashPassword(password);
+        const res = await User.query()
+            .findById(id)
+            .patch({
+                password: hashedPassword,
+            });
+        return res.toString();
     }
 
-    static async login(email, password){
+    static async removeUsers(ids) {
+        return User.query().delete().whereIn('id', ids);
+    }
+
+    static async login(email, password) {
         const [user] = await User.query()
             .select('users.*',
                 'roles.role AS role',
                 'groups.name AS group',
-                'accounts.name AS account',
-                'photos.url AS photo')
+                'accounts.name AS account')
             .where('email', '=', email)
             .innerJoin('roles', 'users.role_id', 'roles.id')
-            .innerJoin('accounts', 'users.account_id', 'accounts.id')
+            .leftJoin('accounts', 'users.account_id', 'accounts.id')
             .leftJoin('groups', 'users.group_id', 'groups.id')
-            .leftJoin('photos', 'users.id', 'photos.user_id');
-        if(!user) return false
+        if (!user) return false
 
         const hasValidPassword = await bcrypt.compare(password, user.password);
-        if(!hasValidPassword) return false
+        if (!hasValidPassword) return false
 
         return jwt.sign({
             id: user.id,
@@ -73,25 +78,36 @@ module.exports = class UserService {
         return User.query().findById(id);
     }
 
-    static async findAllUsers(){
-        return User.query();
+    static async findAllUsers(id) {
+        console.log(id)
+        return User.query()
+            .select('users.id', 'users.user_name', 'email', 'role_id', 'roles.role', 'users.account_id', 'accounts.name AS account', 'users.group_id', 'groups.name AS group')
+            .innerJoin('roles', 'users.role_id', 'roles.id')
+            .leftJoin('accounts', 'users.account_id', 'accounts.id')
+            .leftJoin('groups', 'users.group_id', 'groups.id')
+            .where('users.id', '!=', id)
     }
 
-    static async findGroupUsers(group_id){
+    static async findGroupUsers(group_id) {
         return User.query()
             .select('users.*')
             .where('group_id', '=', group_id);
     }
 
-    static async findAccountUsers(account_id){
+    static async findAccountUsers(account_id) {
         return User.query()
             .select('users.*')
             .where('account_id', '=', account_id);
     }
 
-    static async hashPassword(password){
+    static async hashPassword(password) {
         const salt = await bcrypt.genSalt(10);
         return bcrypt.hash(password, salt);
+    }
+
+    static async getUserCounts(){
+        const count = await User.query().count('id AS users');
+        return count[0]
     }
 
 }
