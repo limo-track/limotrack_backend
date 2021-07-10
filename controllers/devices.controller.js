@@ -14,6 +14,12 @@ class DevicesController{
         res.send(devices);
     }
 
+    static async getGroupFreeDevices(req, res){
+        const group_id = req.params.group_id;
+        const devices = await DevicesServices.getGroupFreeDevices(group_id);
+        res.send(devices);
+    }
+
     static async updateDevice(req, res){
         const {imei, phone, subscription} = req.body;
         await DevicesServices.updateDevice(imei, phone, subscription);

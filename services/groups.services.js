@@ -8,6 +8,10 @@ class GroupsServices {
             .where('account_id', '=', account_id);
     }
 
+    static getGroupByID(id){
+        return Group.query().findById(id);
+    }
+
     static async createGroup(account_id, name, address, latitude, longitude, contact_person, contact_phone){
         return Group.query().insert({
             account_id, name, address, latitude, longitude, contact_person, contact_phone

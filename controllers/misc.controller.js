@@ -8,8 +8,8 @@ class MiscController{
         const {users} = await UserServices.getUserCounts();
         const {accounts} = await AccountServices.getCounts();
         const {devices} = await DeviceServices.getCounts();
-
-        res.send({users, accounts, devices})
+        const devicePerAccount = await AccountServices.getDevicesPerAccount();
+        res.send({users, accounts, devices, devicePerAccount})
     }
 }
 

@@ -8,6 +8,12 @@ class GroupsController {
         res.send(result);
     }
 
+    static async getGroupByID(req, res){
+        const id = req.params.id;
+        const group = await GroupsServices.getGroupByID(id);
+        res.send(group);
+    }
+
     static async createGroup(req, res) {
         console.log(req.body)
         const {account_id, name, address, latitude = null, longitude = null, contact_person, contact_phone} = req.body;

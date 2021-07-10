@@ -1,4 +1,5 @@
 const Account = require('../models/account');
+const Car = require('../models/car');
 
 class AccountServices {
 
@@ -10,6 +11,10 @@ class AccountServices {
 
     static async getAllAccounts() {
         return Account.query().select('id', 'name As account', 'address', 'latitude', 'longitude', 'contact_person', 'contact_phone');
+    }
+
+    static getAccountByID(id){
+        return Account.query().findById(id);
     }
 
     static async getCounts(){
@@ -28,6 +33,16 @@ class AccountServices {
 
     static removeAccounts(ids){
         return Account.query().delete().whereIn('id', ids);
+    }
+
+    static async getDevicesPerAccount(){
+        return Car.query()
+            .select('accounts.name')
+            .count('cars.imei AS device')
+            .innerJoin('groups', 'cars.group_id', 'groups.id')
+            .innerJoin('accounts', 'groups.account_id', 'accounts.id')
+            .groupBy('accounts.name');
+
     }
 
 

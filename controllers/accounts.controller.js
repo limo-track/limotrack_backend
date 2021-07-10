@@ -7,6 +7,12 @@ class AccountsController {
         res.send(result);
     }
 
+    static async getAccountByID(req, res){
+        const id = req.params.id;
+        const account = await AccountServices.getAccountByID(id);
+        res.send(account)
+    }
+
     static async createAccount(req, res) {
         const {name, address, latitude = null, longitude = null, contact_person, contact_phone} = req.body;
         const account = await AccountServices.createAccount(name, address, latitude, longitude, contact_person, contact_phone);

@@ -7,6 +7,8 @@ const groupRouter = require('./routes/groups');
 const deviceRouter = require('./routes/devices');
 const miscRouter = require('./routes/misc');
 const pathRouter = require('./routes/paths');
+const carRouter = require('./routes/cars');
+const driverRouter = require('./routes/drivers');
 
 const app = express();
 app.use(morgan('tiny'));
@@ -25,6 +27,8 @@ app.use('/api/groups', groupRouter);
 app.use("/api/devices", deviceRouter);
 app.use('/api/counts', miscRouter);
 app.use('/api/paths', pathRouter);
+app.use('/api/cars', carRouter);
+app.use('/api/drivers', driverRouter);
 
 const port = process.env.PORT;
 app.listen(port, () => {
