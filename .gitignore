@@ -1,8 +1,5 @@
-<<<<<<< HEAD
+
 .idea/
-=======
 /node_modules
 .idea/
-.env
->>>>>>> feature/socket-server
 playground.js
