@@ -1,1 +1,3 @@
-## Run using npm start
+# How to start server?
+* $ npm i
+* $ npm start
